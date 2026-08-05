@@ -12,11 +12,13 @@ concurrency:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
-      IMAGE_REPOSITORY: registry.triboulin.fr/formrelay-admin
+      IMAGE_REPOSITORY: registry.triboulin.fr/formrelay
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,6 +35,12 @@ jobs:
           fi
           echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "image_ref=$IMAGE_REPOSITORY:$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to Docker registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "${REGISTRY_PASSWORD}" | docker login registry.triboulin.fr -u "${REGISTRY_USERNAME}" --password-stdin
 
       - name: Build Docker image
         shell: bash

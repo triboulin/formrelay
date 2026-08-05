@@ -1,0 +1,47 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: build-push-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: [self-hosted]
+    permissions:
+      contents: read
+    env:
+      IMAGE_REPOSITORY: registry.triboulin.fr/formrelay-admin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Derive image tag
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          if [[ -z "$TAG_NAME" ]]; then
+            echo "No tag found in GITHUB_REF=$GITHUB_REF"
+            exit 1
+          fi
+          echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "image_ref=$IMAGE_REPOSITORY:$TAG_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build -t "${{ steps.meta.outputs.image_ref }}" .
+
+      - name: Push Docker image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "${{ steps.meta.outputs.image_ref }}"

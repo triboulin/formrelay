@@ -1,0 +1,7 @@
+data/
+.env
+.git
+.gitignore
+README.md
+*.db
+htmltest.html

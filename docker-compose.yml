@@ -1,0 +1,22 @@
+services:
+  formrelay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: formrelay
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+      DATABASE_URL: "/app/data/formrelay.db"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

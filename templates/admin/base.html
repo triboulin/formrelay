@@ -1,0 +1,49 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} · FormRelay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <style>[x-cloak]{display:none!important;}</style>
+</head>
+<body class="bg-gray-50 text-gray-900" x-data="{ modalOpen: false }">
+    <div class="flex min-h-screen">
+        <aside class="w-60 shrink-0 bg-gray-900 text-gray-100 flex flex-col">
+            <div class="px-6 py-5 text-lg font-semibold border-b border-gray-800">
+                FormRelay <span class="text-indigo-400">Admin</span>
+            </div>
+            <nav class="flex-1 px-3 py-4 space-y-1 text-sm">
+                <a href="/admin" class="block px-3 py-2 rounded-lg {{if eq .ActiveNav "dashboard"}}bg-gray-800 text-white{{else}}text-gray-300 hover:bg-gray-800 hover:text-white{{end}}">Dashboard</a>
+                <a href="/admin/clients" class="block px-3 py-2 rounded-lg {{if eq .ActiveNav "clients"}}bg-gray-800 text-white{{else}}text-gray-300 hover:bg-gray-800 hover:text-white{{end}}">Clients</a>
+                <a href="/admin/logs" class="block px-3 py-2 rounded-lg {{if eq .ActiveNav "logs"}}bg-gray-800 text-white{{else}}text-gray-300 hover:bg-gray-800 hover:text-white{{end}}">Logs</a>
+            </nav>
+            <div class="px-6 py-4 text-xs text-gray-500 border-t border-gray-800">FormRelay Admin</div>
+        </aside>
+
+        <main class="flex-1 p-8 max-w-6xl mx-auto w-full">
+            {{.Body}}
+        </main>
+    </div>
+
+    <!-- Modal / offcanvas générique (détail d'une soumission) -->
+    <div x-show="modalOpen" x-cloak
+         class="fixed inset-0 z-50 flex items-start justify-end bg-black/40"
+         @click.self="modalOpen = false">
+        <div class="h-full w-full max-w-lg bg-white shadow-xl overflow-y-auto"
+             x-show="modalOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h2 class="text-lg font-semibold">Détail de la soumission</h2>
+                <button @click="modalOpen = false" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+            </div>
+            <div id="log-modal-body" class="p-6 text-sm">
+                Chargement…
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{{end}}

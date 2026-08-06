@@ -45,10 +45,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker build -t "${{ steps.meta.outputs.image_ref }}" .
+          docker build -t "${{ steps.meta.outputs.image_ref }}" -t "latest" .
 
       - name: Push Docker image
         shell: bash
         run: |
           set -euo pipefail
           docker push "${{ steps.meta.outputs.image_ref }}"
+          docker push "latest"

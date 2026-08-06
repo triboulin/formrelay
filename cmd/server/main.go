@@ -41,6 +41,7 @@ func main() {
 
 	publicHandler := handler.NewPublicHandler(clientRepo, formService, templatesDir)
 	adminHandler := handler.NewAdminHandler(clientRepo, subRepo, templatesDir)
+	apiHandler := handler.NewAPIHandler(clientRepo)
 
 	rateLimiter := middleware.NewIPRateLimiter(5 * time.Second)
 	basicAuth := middleware.BasicAuth(cfg.AdminUser, cfg.AdminPass)
@@ -63,6 +64,12 @@ func main() {
 	adminMux.HandleFunc("GET /admin/logs/{id}", adminHandler.LogDetail)
 	mux.Handle("/admin", basicAuth(adminMux))
 	mux.Handle("/admin/", basicAuth(adminMux))
+
+	// API JSON pour les scripts de provisioning (mêmes identifiants que /admin).
+	apiMux := http.NewServeMux()
+	apiMux.HandleFunc("POST /api/clients", apiHandler.CreateClient)
+	apiMux.HandleFunc("GET /api/clients", apiHandler.ListClients)
+	mux.Handle("/api/", basicAuth(apiMux))
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

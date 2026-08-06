@@ -73,6 +73,23 @@ Champs spéciaux reconnus :
 
 `/admin/logs` liste toutes les soumissions avec filtres par client et statut (`SUCCESS`, `FAILED`, `BLOCKED`), pagination et détail du payload JSON par soumission.
 
+### 4. API JSON (provisioning automatisé)
+
+En plus du panel HTMX, une petite API JSON permet de créer/lister des clients depuis un script, sans parser du HTML. Protégée par les mêmes identifiants que `/admin` (Basic Auth).
+
+```bash
+# Créer un client
+curl -u "$ADMIN_USER:$ADMIN_PASS" -X POST https://formrelay.example.com/api/clients \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Site Client X", "destination_email": "contact@client-x.fr"}'
+# -> 201 {"id": "...", "name": "...", "destination_email": "...", "active": true, "endpoint": "/f/...", "created_at": "..."}
+
+# Lister les clients existants
+curl -u "$ADMIN_USER:$ADMIN_PASS" https://formrelay.example.com/api/clients
+```
+
+`endpoint` (`/f/{id}`) est le chemin à concaténer à l'URL de l'instance pour obtenir l'`action` du formulaire à intégrer côté site. Voir l'utilitaire `utils/formrelay-setup` (dans le dépôt `triboulin.fr`) qui s'appuie sur cette API pour provisionner un client et générer directement le snippet de formulaire.
+
 ## Sécurité intégrée
 
 - **Rate limiting** : 1 soumission max toutes les 5 secondes par IP (429 sinon), en mémoire.
